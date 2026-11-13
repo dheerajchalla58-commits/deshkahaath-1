@@ -1,0 +1,38 @@
+name: Build Mac app
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'mac/**'
+      - 'local_image.py'
+      - 'app.py'
+      - 'requirements.txt'
+      - 'data/**'
+      - 'templates/**'
+      - 'static/**'
+      - '.github/workflows/mac-build.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Build and smoke-check app
+        run: bash mac/build.sh
+      - name: Upload Mac app preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeshKeHaath-macOS-arm64
+          path: dist/DeshKeHaath-macOS-arm64.zip
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish experimental Mac preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view mac-preview >/dev/null 2>&1 || gh release create mac-preview --target "$GITHUB_SHA" --prerelease --title "Mac app preview" --notes "Experimental Apple Silicon build. The first launch downloads an approximately 4.62 GB image model. The build has a server smoke check, but image generation and device features need testing on a physical Mac. This build is not notarized."
+          gh release upload mac-preview dist/DeshKeHaath-macOS-arm64.zip --clobber

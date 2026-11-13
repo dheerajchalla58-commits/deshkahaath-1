@@ -26,3 +26,4 @@ server_logs.txt
 /requests/
 /sqlalchemy/
 /werkzeug/
+dist/

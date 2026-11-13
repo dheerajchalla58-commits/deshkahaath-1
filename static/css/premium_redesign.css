@@ -432,3 +432,5 @@ body.dark-mode .pdp-back-link { color:#f0e6d8; background:rgba(55,54,48,.75); bo
 .demo-cart-row button { background:none; border:0; color:#98603e; cursor:pointer; }
 .demo-cart-total { font-weight:600; }
 body.dark-mode .demo-cart-dialog { background:#252622; color:#f2eee7; }
+.local-model-status:not([hidden]) { padding:.8rem 1rem; background:#e9ded0; color:#4f3d2c; text-align:center; font-size:.85rem; }
+body.dark-mode .local-model-status:not([hidden]) { background:#433b31; color:#f2e8dc; }

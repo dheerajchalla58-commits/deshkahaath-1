@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!prompt) return;
         const generateButton=event.submitter;
         if(generateButton) { generateButton.disabled=true; generateButton.textContent='Creating…'; }
-        result.replaceChildren(Object.assign(document.createElement('p'),{className:'design-waiting',textContent:'Creating a product concept from your brief… This can take up to a minute.'}));
+        result.replaceChildren(Object.assign(document.createElement('p'),{className:'design-waiting',textContent:'Creating a product concept from your brief… This may take a few minutes.'}));
         try {
             const response=await fetch('/api/generate-craft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
             const data=await response.json();

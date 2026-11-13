@@ -43,7 +43,8 @@ AWS_REKOGNITION_CUSTOM_MODEL_ARN = os.getenv("AWS_REKOGNITION_CUSTOM_MODEL_ARN")
 from datetime import timedelta
 
 # Trigger Reload for Template Update 5
-app = Flask(__name__)
+_data_dir = os.environ.get('DESH_DATA_DIR')
+app = Flask(__name__, instance_path=os.path.abspath(_data_dir)) if _data_dir else Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Session Configuration for Better Persistence
@@ -1201,7 +1202,11 @@ def generate_craft_concept():
     )
 
     image_data, provider_error = None, None
-    if GEMINI_IMAGE_API_KEY:
+    if os.environ.get('DESH_LOCAL_MODEL') == '1':
+        import local_image
+        image_data, provider_error = local_image.generate(prompt)
+        provider = 'Local Mac model'
+    elif GEMINI_IMAGE_API_KEY:
         image_data, provider_error = gemini_img_client.generate_image(prompt)
         provider = 'Gemini Imagen'
     elif HF_TOKENS:
@@ -1212,6 +1217,8 @@ def generate_craft_concept():
 
     if not image_data:
         app.logger.warning('Craft concept generation provider error: %s', provider_error)
+        if os.environ.get('DESH_LOCAL_MODEL') == '1':
+            return jsonify({'error': provider_error or 'Local image generation failed.'}), 503
         if provider_error and ('key' in provider_error.lower() or 'token' in provider_error.lower() or 'balance' in provider_error.lower()):
             return jsonify({'error': 'Image generation needs a server API key and available provider credits. Add POLLINATIONS_API_KEY to the local .env file, then restart the app. The key stays on this server.'}), 503
         if provider_error and ('402' in provider_error or 'payment required' in provider_error.lower()):
@@ -1239,6 +1246,14 @@ def generate_craft_concept():
 @app.route('/generated/crafts/<path:filename>')
 def generated_craft_image(filename):
     return send_from_directory(os.path.join(app.instance_path, 'generated'), filename)
+
+
+@app.route('/api/local-model-status')
+def local_model_status():
+    if os.environ.get('DESH_LOCAL_MODEL') != '1':
+        return jsonify({'state': 'disabled'})
+    import local_image
+    return jsonify(local_image.status())
 
 
 
