@@ -1,0 +1,18 @@
+<dialog class="xr-dialog" id="xrDialog" aria-labelledby="xrProductName">
+    <form method="dialog" class="xr-close"><button aria-label="Close spatial preview">×</button></form>
+    <div class="xr-heading"><span class="catalog-eyebrow">SPATIAL CRAFT PREVIEW</span><h2 id="xrProductName">Craft preview</h2><p id="xrStatus" role="status" aria-live="polite">Loading the 3D product preview…</p></div>
+    <div class="xr-stage" id="xrStage">
+        <div class="xr-product-card" id="xrFallbackCard"><div class="xr-product-card-back"></div><img id="xrPreviewImage" alt=""></div>
+        <div class="xr-stage-glow"></div>
+    </div>
+    <div class="xr-actions"><button type="button" id="enterAR" disabled>Place in AR</button><button type="button" id="enterVR" disabled>Enter VR</button><span>AR and VR require a compatible device and browser.</span></div>
+</dialog>
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+    }
+}
+</script>
+<script type="module" src="{{ url_for('static', filename='js/xr-viewer.js') }}?v=3"></script>

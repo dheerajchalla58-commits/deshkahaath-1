@@ -1,0 +1,17 @@
+# Production Server
+gunicorn
+
+# Core dependencies
+Flask
+python-dotenv
+requests
+flask-sqlalchemy
+flask-login
+groq
+psycopg2-binary
+boto3
+
+# Note:
+# - torch, transformers, accelerate EXCLUDED (Size limit)
+# - google-generativeai EXCLUDED (Replaced with internal REST client to save 150MB)
+# - huggingface_hub EXCLUDED (Not needed for simple API calls)

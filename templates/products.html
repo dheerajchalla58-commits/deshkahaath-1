@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="products-header">
+    <div class="header-content">
+        <span class="catalog-eyebrow">THE LIVING CRAFT OF INDIA</span>
+        <h1>Made by hand. <em>Rooted in India.</em></h1>
+        <p>Discover the makers, materials and traditions behind every piece.</p>
+    </div>
+</section>
+
+
+
+<!-- Filter Toolbar -->
+<section class="filter-section">
+    <form action="{{ url_for('products') }}" method="GET" class="filter-toolbar" id="catalogSearchForm">
+        <div class="search-box">
+            <input id="craftSearch" type="search" name="search" placeholder="Try “Kondapalli toys” or “Assam silk”" value="{{ search_query }}" autocomplete="off">
+
+            <button type="submit" class="search-btn" title="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="middle-icons">
+            <!-- Voice Search -->
+            <button type="button" class="icon-btn voice-btn" title="Search by voice" aria-label="Search by voice">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+
+            <!-- Image Search -->
+            <button type="button" class="icon-btn image-btn" title="Search by image" aria-label="Search by image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+            </button>
+            <input type="file" id="craftImageInput" accept="image/*" capture="environment" hidden>
+
+            <!-- Location Search -->
+            <button type="button" class="icon-btn location-btn" title="Find crafts near me" aria-label="Find crafts near me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            </button>
+            <button type="button" class="icon-btn design-btn" title="Design a craft concept" aria-label="Design a craft concept">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle>
+                </svg>
+            </button>
+        </div>
+
+        <div class="filter-controls">
+            <select name="state" onchange="this.form.submit()">
+                <option value="all">All States</option>
+                {% for state in all_states %}
+                <option value="{{ state }}" {% if current_state==state %}selected{% endif %}>{{ state }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="category" onchange="this.form.submit()">
+                <option value="All">All Categories</option>
+                {% for category in all_categories %}
+                <option value="{{ category }}" {% if current_category==category %}selected{% endif %}>{{ category }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="sort" aria-label="Sort products" onchange="this.form.submit()" class="sort-select">
+                <option value="default" {% if current_sort=='default' %}selected{% endif %}>Featured</option>
+                <option value="price_low" {% if current_sort=='price_low' %}selected{% endif %}>Price: low to high</option>
+                <option value="price_high" {% if current_sort=='price_high' %}selected{% endif %}>Price: high to low</option>
+                <option value="rating" {% if current_sort=='rating' %}selected{% endif %}>Top rated</option>
+            </select>
+        </div>
+
+    </form>
+</section>
+
+<div class="catalog-status" id="catalogStatus" role="status" aria-live="polite"></div>
+
+<dialog class="design-dialog" id="designDialog">
+    <form method="dialog" class="design-dialog-close"><button aria-label="Close">×</button></form>
+    <span class="catalog-eyebrow">A CREATIVE PREVIEW</span>
+    <h2>Imagine a new heirloom</h2>
+    <p>Describe a craft idea inspired by India’s living traditions.</p>
+    <form id="designForm" class="design-form">
+        <textarea id="designPrompt" rows="3" placeholder="A red silk saree blending Assam's Muga weaving with Andhra's Kalamkari motifs" required></textarea>
+        <button type="submit" class="design-submit">Create concept</button>
+    </form>
+    <div class="design-result" id="designResult" aria-live="polite"></div>
+</dialog>
+
+{% include 'partials/spatial_viewer.html' %}
+
+<section class="products-grid-section">
+    {% if not products %}<div class="empty-catalog"><span class="catalog-eyebrow">NO MATCHES YET</span><h2>Try another craft or state</h2><p>Clear one of the filters or search by a broader tradition.</p><a class="home-primary-cta" href="{{ url_for('products') }}">Clear filters</a></div>{% endif %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card animate-on-scroll" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-state="{{ product.state }}" data-product-price="{{ product.price }}" data-product-image="{{ product.image_url }}">
+            <div class="product-image-canvas">
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-visual-wrapper">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-visual" loading="lazy">
+                    <div class="visual-overlay">
+                        <span class="view-discovery">Discover Heritage</span>
+                    </div>
+                </a>
+                <div class="product-origin-tag">{{ product.state }}</div>
+                {% if product.is_popular %}
+                <div class="product-popular-badge" title="Regional Favorite & GI Item">
+                    <img src="/static/images/gi_tag.png" alt="GI">
+                </div>
+                {% endif %}
+                <button class="quick-add-cart" type="button" title="Add to demo collection" aria-label="Add {{ product.name }} to demo collection">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                        <path d="M3 6h18"></path>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="product-master-info">
+                <div class="product-meta-top">
+                    <span class="product-category-label">{{ product.category }}</span>
+                    {% if product.production_time %}
+                    <span class="product-time-to-make"
+                        style="font-size: 0.75rem; color: #666; display: flex; align-items: center; gap: 4px; border: 1px solid #eee; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.02);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {{ product.production_time }}
+                    </span>
+                    {% endif %}
+                    <div class="product-entry-rating">
+                        <span class="star-icon">★</span>
+                        <span class="rating-val">{{ product.rating }}</span>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-title-link">
+                    <h3 class="product-title-main">{{ product.name }}</h3>
+                </a>
+
+                <p class="product-narrative-snippet">"{{ product.fun_fact }}"</p>
+
+                <div class="product-bottom-row">
+                    <div class="product-valuation">
+                        <span class="currency">₹</span>
+                        <span class="price-amount">{{ product.price }}</span>
+                    </div>
+                    <button type="button" class="spatial-view-btn" data-spatial-view data-name="{{ product.name }}" data-image="{{ product.image_url }}" data-model="{% if product.model_3d %}{{ url_for('static', filename='models/' + product.model_3d) }}{% endif %}" aria-label="Preview {{ product.name }} in 3D, AR or VR">✧ <span>AR / VR</span></button>
+                    <a class="explore-detail-btn" href="{{ url_for('product_detail', product_id=product.id) }}#craft-story">
+                        <span>The Story</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if page_count > 1 %}
+    <nav class="catalog-pagination" aria-label="Catalog pages">
+        {% if previous_page_url %}<a href="{{ previous_page_url }}">← Previous</a>{% endif %}
+        <span>Page {{ page }} of {{ page_count }} · {{ total_products }} crafts</span>
+        {% if next_page_url %}<a href="{{ next_page_url }}">Next →</a>{% endif %}
+    </nav>
+    {% endif %}
+</section>
+
+<script src="{{ url_for('static', filename='js/catalog.js') }}?v=6"></script>
+
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="product-detail-section">
+    <a class="pdp-back-link" href="{{ url_for('products') }}" id="backToCollection">← Back to collection</a>
+    <div class="product-container">
+        <div class="product-hero-gallery">
+            <div class="main-visual-canvas">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="pdp-main-visual">
+                <div class="image-premium-overlay"></div>
+            </div>
+            <div class="pdp-badges">
+                <span class="heritage-certified">Artisan made</span>
+                <span class="state-origin">{{ product.state }}</span>
+            </div>
+        </div>
+
+        <div class="product-curation-details">
+            <nav class="pdp-breadcrumb">
+                <a href="{{ url_for('index') }}">Home</a>
+                <span class="sep">/</span>
+                <a href="{{ url_for('products') }}">Collection</a>
+                <span class="sep">/</span>
+                <span class="current">{{ product.name }}</span>
+            </nav>
+
+            <div class="pdp-main-header">
+                <span class="pdp-category">{{ product.category }}</span>
+                <h1 class="pdp-title-grand">{{ product.name }}</h1>
+                <div class="pdp-social-proof">
+                    <div class="star-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="score">{{ product.rating }}</span>
+                    </div>
+                    <span class="review-count">{{ product.reviews }} reviews</span>
+                </div>
+            </div>
+
+            <div class="pdp-pricing-tier">
+                <div class="current-valuation">
+                    <span class="currency">₹</span>
+                    <span class="amount">{{ product.price }}</span>
+                </div>
+                <div class="valuation-meta">
+                    <span class="tax-inclusive">Taxes included</span>
+                    <span class="free-shipping">Complimentary delivery across India</span>
+                </div>
+            </div>
+
+            <div class="pdp-storytelling-block" id="craft-story">
+                <div class="pdp-story-heading">
+                    <span class="pdp-story-label">THE CRAFT</span>
+                </div>
+                <p class="story-narrative">{{ product.description }}</p>
+                {% if product.story and product.story != product.description %}<p class="story-narrative pdp-full-story">{{ product.story }}</p>{% endif %}
+                <div class="artisan-discovery-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span>Made by independent artisans</span>
+                </div>
+            </div>
+
+            <div class="pdp-checkout-orchestrator">
+                <div class="pdp-count-selector">
+                    <button type="button" class="qty-trigger" id="qtyMinus">−</button>
+                    <input type="number" value="1" min="1" max="10" readonly id="pdpQty" class="qty-display">
+                    <button type="button" class="qty-trigger" id="qtyPlus">+</button>
+                </div>
+                <div class="pdp-actions-group">
+                    <button class="btn-pdp-add-minimal">
+                        Add to Cart
+                    </button>
+                    {% if product.model_3d %}
+                    <button class="btn-pdp-view-3d" type="button" data-spatial-view data-name="{{ product.name }}" data-image="{{ product.image_url }}" data-model="{{ url_for('static', filename='models/' + product.model_3d) }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16.5l-9 5.5-9-5.5V7.5L12 2l9 5.5v9z" />
+                            <path d="M12 22v-9l-9-5.5" />
+                            <path d="M21 7.5L12 13l-9-5.5" />
+                            <path d="M12 13l9-5.5" />
+                        </svg>
+                        View in 3D / AR / VR
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% include 'partials/spatial_viewer.html' %}
+
+<!-- Related Masterpieces Section -->
+{% if related_products %}
+<section class="related-products-section">
+    <div class="section-decor-header">
+        <span class="decor-label">From the Collection</span>
+        <h2 class="decor-title">You may also like</h2>
+    </div>
+
+    <div class="related-grid-carousel">
+        {% for rel in related_products %}
+        <div class="related-mini-card">
+            <a href="{{ url_for('product_detail', product_id=rel.id) }}" class="mini-card-link">
+                <div class="mini-visual-wrapper">
+                    <img src="{{ rel.image_url }}" alt="{{ rel.name }}" loading="lazy" decoding="async">
+                </div>
+                <div class="mini-info">
+                    <h4 class="mini-title">{{ rel.name }}</h4>
+                    <div class="mini-meta">
+                        <span class="mini-state">{{ rel.state }}</span>
+                        <span class="mini-price">₹{{ rel.price }}</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<script>
+document.getElementById('backToCollection').addEventListener('click', function (event) {
+    try {
+        const previous = new URL(document.referrer);
+        if (previous.origin === location.origin && previous.pathname === '{{ url_for('products') }}') {
+            event.preventDefault();
+            location.href = previous.href;
+        }
+    } catch (_) {}
+});
+</script>
+
+{% endblock %}
