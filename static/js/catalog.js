@@ -125,13 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const designKey = 'desh_ke_haath_demo_designs';
     const cartCount = document.querySelector('.cart-count');
     const readCart = () => { try { return JSON.parse(localStorage.getItem(cartKey) || '[]'); } catch { return []; } };
-    const updateCartCount = () => { const count=readCart().reduce((sum,item)=>sum+item.qty,0); if(cartCount){cartCount.textContent=count;cartCount.hidden=count===0;} };
+    const updateCartCount = () => { const count=readCart().reduce((sum,item)=>sum+item.qty,0); if(cartCount){cartCount.textContent=count;cartCount.hidden=count===0;} window.dispatchEvent(new Event('desh-cart-changed')); };
     updateCartCount();
-    document.querySelector('.cart-btn')?.addEventListener('click', () => {
-        const cart=readCart();
-        if (!cart.length) { status.textContent='Your demo collection is empty. Add a piece you love to get started.'; return; }
-        status.textContent=`Your demo collection: ${cart.map(item=>`${item.name} ×${item.qty}`).join(', ')}. Demo only; checkout is not connected.`;
-    });
     products.forEach(card => card.querySelector('.quick-add-cart')?.addEventListener('click', () => {
         const item={id:card.dataset.productId,name:card.dataset.productName,state:card.dataset.productState,price:Number(card.dataset.productPrice),image:card.dataset.productImage,qty:1};
         const cart=readCart(), existing=cart.find(product=>product.id===item.id);

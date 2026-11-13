@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="product-detail-section">
+<section class="product-detail-section" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-state="{{ product.state }}" data-product-price="{{ product.price }}" data-product-image="{{ product.image_url }}">
     <a class="pdp-back-link" href="{{ url_for('products') }}" id="backToCollection">← Back to collection</a>
     <div class="product-container">
         <div class="product-hero-gallery">
@@ -72,6 +72,7 @@
                     <button class="btn-pdp-add-minimal">
                         Add to Cart
                     </button>
+                    <span class="pdp-cart-status" role="status" aria-live="polite"></span>
                     {% if product.model_3d %}
                     <button class="btn-pdp-view-3d" type="button" data-spatial-view data-name="{{ product.name }}" data-image="{{ product.image_url }}" data-model="{{ url_for('static', filename='models/' + product.model_3d) }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
