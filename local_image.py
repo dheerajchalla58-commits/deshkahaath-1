@@ -33,7 +33,14 @@ def prepare_model():
     try:
         from huggingface_hub import snapshot_download
         try:
-            snapshot_download(repo_id=MODEL_REPO, local_files_only=True)
+            snapshot = snapshot_download(repo_id=MODEL_REPO, local_files_only=True)
+            required = (
+                "text_encoder/0.safetensors", "text_encoder/1.safetensors",
+                "transformer/0.safetensors", "transformer/1.safetensors",
+                "vae/0.safetensors", "tokenizer/tokenizer.json",
+            )
+            if not all(os.path.isfile(os.path.join(snapshot, name)) for name in required):
+                raise FileNotFoundError("The cached model download is incomplete.")
         except Exception:
             snapshot_download(repo_id=MODEL_REPO)
         _update("ready", "Local image model is ready.")
